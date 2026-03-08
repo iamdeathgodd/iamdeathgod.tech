@@ -311,18 +311,46 @@
     .delay-3 { animation-delay: 0.3s; }
     .delay-4 { animation-delay: 0.4s; }
     .delay-5 { animation-delay: 0.5s; }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      background: rgba(8,8,16,0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(124,106,255,0.12);
+      transition: transform 0.3s ease;
+    }
+    .navbar.hidden { transform: translateY(-100%); }
+
+    /* Mobile responsiveness */
+    @media (max-width: 600px) {
+      .container { padding: 24px 16px; gap: 32px; }
+      .name { font-size: 2rem; }
+      .tagline { font-size: 0.9rem; }
+      .card { padding: 20px 18px; }
+      .social-link { padding: 12px 14px; gap: 12px; }
+      .social-name { font-size: 0.88rem; }
+      .social-handle { font-size: 0.72rem; }
+      .social-icon { width: 32px; height: 32px; font-size: 0.95rem; }
+      .navbar { padding: 10px 16px; }
+    }
   </style>
 </head>
 <body>
 
-  <nav style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 28px;display:flex;align-items:center;background:rgba(8,8,16,0.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(124,106,255,0.12);">
-    <img src="logo.svg" alt="iamdeathgod" style="height:36px;width:auto;" />
+  <nav class="navbar" id="navbar">
+    <img src="logo.svg" alt="iamdeathgod" style="height:44px;width:auto;" />
   </nav>
 
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
 
-  <div class="container" style="padding-top:80px;">
+  <div class="container" style="padding-top:96px;">
 
     <div class="avatar-wrap fade-up">
       <div class="avatar-ring"></div>
@@ -422,6 +450,21 @@
   <footer class="fade-up delay-5">
     crafted with ☠️ — iamdeathgod.tech
   </footer>
+
+  <script>
+    // Hide navbar on scroll down, show on scroll up
+    let lastY = 0;
+    const nav = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      if (y > lastY && y > 60) {
+        nav.classList.add('hidden');
+      } else {
+        nav.classList.remove('hidden');
+      }
+      lastY = y;
+    }, { passive: true });
+  </script>
 
 </body>
 </html>

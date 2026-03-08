@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 140" width="400" height="140">
+  <defs>
+    <radialGradient id="glowBg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#07070f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="skullGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="140" fill="#07070f" rx="16"/>
+  <ellipse cx="200" cy="70" rx="160" ry="60" fill="url(#glowBg)"/>
+
+  <!-- Skull icon -->
+  <!-- Skull cranium -->
+  <ellipse cx="62" cy="58" rx="28" ry="26" fill="url(#skullGrad)" filter="url(#glow)"/>
+  <!-- Skull jaw -->
+  <rect x="44" y="75" width="36" height="16" rx="4" fill="url(#skullGrad)" filter="url(#glow)"/>
+  <!-- Jaw teeth gaps -->
+  <rect x="52" y="79" width="5" height="10" rx="2" fill="#07070f"/>
+  <rect x="62" y="79" width="5" height="10" rx="2" fill="#07070f"/>
+  <rect x="72" y="79" width="5" height="10" rx="2" fill="#07070f"/>
+  <!-- Eye sockets -->
+  <ellipse cx="52" cy="56" rx="8" ry="9" fill="#07070f"/>
+  <ellipse cx="73" cy="56" rx="8" ry="9" fill="#07070f"/>
+  <!-- Eye glows (pupils) -->
+  <ellipse cx="52" cy="57" rx="3.5" ry="4" fill="#a855f7" opacity="0.9" filter="url(#glow)"/>
+  <ellipse cx="73" cy="57" rx="3.5" ry="4" fill="#06b6d4" opacity="0.9" filter="url(#glow)"/>
+  <!-- Nose -->
+  <path d="M60 66 L63 72 L66 66" stroke="#07070f" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+  <!-- Divider line -->
+  <line x1="108" y1="30" x2="108" y2="110" stroke="#1e1e3a" stroke-width="1.5"/>
+
+  <!-- Main wordmark -->
+  <text x="126" y="72" 
+    font-family="'Arial Black', 'Helvetica Neue', sans-serif" 
+    font-weight="900"
+    font-size="36"
+    letter-spacing="-1"
+    fill="url(#textGrad)"
+    filter="url(#softGlow)">iamdeathgod</text>
+
+  <!-- Tagline -->
+  <text x="128" y="96"
+    font-family="'Courier New', monospace"
+    font-size="11"
+    letter-spacing="3"
+    fill="#64748b">// GAMING &#183; ANIME &#183; TECH</text>
+
+  <!-- Corner accent dots -->
+  <circle cx="16" cy="16" r="2" fill="#7c3aed" opacity="0.5"/>
+  <circle cx="384" cy="16" r="2" fill="#7c3aed" opacity="0.5"/>
+  <circle cx="16" cy="124" r="2" fill="#7c3aed" opacity="0.5"/>
+  <circle cx="384" cy="124" r="2" fill="#7c3aed" opacity="0.5"/>
+
+  <!-- Border glow -->
+  <rect width="400" height="140" fill="none" rx="16" stroke="#7c3aed" stroke-width="1" opacity="0.3"/>
+</svg>

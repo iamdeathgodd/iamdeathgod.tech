@@ -249,13 +249,42 @@
     }
 
     .about-skull {
-      font-size: 8rem; text-align: center;
-      animation: float 4s ease-in-out infinite;
-      filter: drop-shadow(0 0 30px rgba(168,85,247,0.4));
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
     }
-    @keyframes float {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
+
+    /* Animated Avatar */
+    .avatar-wrap {
+      position: relative;
+      width: 280px; height: 280px;
+      margin: 0 auto;
+    }
+    .avatar-canvas {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+    }
+    .avatar-ring {
+      position: absolute; inset: -8px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #a855f7, #06b6d4, #a855f7);
+      animation: spin 4s linear infinite;
+      z-index: -1;
+      filter: blur(4px);
+    }
+    .avatar-ring-solid {
+      position: absolute; inset: -3px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #a855f7, #06b6d4, transparent, #a855f7);
+      animation: spin 3s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .avatar-badge {
+      position: absolute; bottom: 8px; right: 8px;
+      background: var(--surface); border: 1px solid rgba(168,85,247,0.4);
+      border-radius: 20px; padding: 4px 12px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem; color: var(--purple-light);
+      white-space: nowrap;
     }
 
     .tags { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 2rem; }
@@ -511,7 +540,14 @@
         <span class="tag">🖤 Dark Mode Enjoyer</span>
       </div>
     </div>
-    <div class="reveal about-skull">☠️</div>
+    <div class="reveal about-skull">
+      <div class="avatar-wrap">
+        <div class="avatar-ring"></div>
+        <div class="avatar-ring-solid"></div>
+        <canvas id="avatar-canvas" class="avatar-canvas"></canvas>
+        <div class="avatar-badge">☠️ iamdeathgod</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -741,6 +777,72 @@ document.querySelectorAll('a, button, .tag, .project-card, .store-card').forEach
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
+})();
+
+// ═══════════════════════════════════════════════════════
+// AVATAR CANVAS — rotating skull/geometry in about section
+// ═══════════════════════════════════════════════════════
+(function initAvatar() {
+  const canvas = document.getElementById('avatar-canvas');
+  if (!canvas) return;
+  const size = 280;
+  canvas.width = size; canvas.height = size;
+  const renderer2 = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer2.setSize(size, size);
+  renderer2.setPixelRatio(window.devicePixelRatio);
+  renderer2.setClearColor(0x000000, 0);
+
+  const scene2 = new THREE.Scene();
+  const cam2 = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+  cam2.position.set(0, 0, 3.5);
+
+  // Outer icosahedron wireframe
+  const outerGeo = new THREE.IcosahedronGeometry(1.3, 1);
+  const outerMat = new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true, transparent: true, opacity: 0.4 });
+  const outer = new THREE.Mesh(outerGeo, outerMat);
+  scene2.add(outer);
+
+  // Inner dodecahedron wireframe
+  const innerGeo = new THREE.DodecahedronGeometry(0.85, 0);
+  const innerMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true, transparent: true, opacity: 0.6 });
+  const inner = new THREE.Mesh(innerGeo, innerMat);
+  scene2.add(inner);
+
+  // Skull text in center using sprite
+  const spriteCanvas = document.createElement('canvas');
+  spriteCanvas.width = 256; spriteCanvas.height = 256;
+  const ctx2 = spriteCanvas.getContext('2d');
+  ctx2.font = '120px serif';
+  ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+  ctx2.fillText('☠️', 128, 128);
+  const spriteTex = new THREE.CanvasTexture(spriteCanvas);
+  const spriteMat = new THREE.SpriteMaterial({ map: spriteTex, transparent: true });
+  const sprite = new THREE.Sprite(spriteMat);
+  sprite.scale.set(1.2, 1.2, 1);
+  scene2.add(sprite);
+
+  // Ambient particles
+  const pts = [];
+  for (let i = 0; i < 80; i++) {
+    pts.push((Math.random()-0.5)*4, (Math.random()-0.5)*4, (Math.random()-0.5)*4);
+  }
+  const ptGeo = new THREE.BufferGeometry();
+  ptGeo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+  const ptMat = new THREE.PointsMaterial({ color: 0xa855f7, size: 0.04, transparent: true, opacity: 0.7 });
+  scene2.add(new THREE.Points(ptGeo, ptMat));
+
+  let t2 = 0;
+  function animAvatar() {
+    requestAnimationFrame(animAvatar);
+    t2 += 0.008;
+    outer.rotation.y = t2;
+    outer.rotation.x = t2 * 0.4;
+    inner.rotation.y = -t2 * 1.3;
+    inner.rotation.z = t2 * 0.6;
+    sprite.position.y = Math.sin(t2 * 2) * 0.05;
+    renderer2.render(scene2, cam2);
+  }
+  animAvatar();
 })();
 
 // ═══════════════════════════════════════════════════════

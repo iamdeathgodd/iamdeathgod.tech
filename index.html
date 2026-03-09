@@ -868,15 +868,10 @@ function forceHeroVisible() {
 const heroTimer = setTimeout(forceHeroVisible, 2000);
 
 try {
-  gsap.set('.letter', { opacity: 0, y: 40 });
-  gsap.set(['#status-badge','#hero-sub','#hero-ctas'], { opacity: 0, y: 20 });
-
   const tl = gsap.timeline({ delay: 0.3, onComplete: () => clearTimeout(heroTimer) });
-  tl.to('#status-badge', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' })
-    .to('.letter', { opacity: 1, y: 0, duration: 0.6, stagger: 0.06, ease: 'back.out(1.7)' }, '-=0.2')
-    .to('#hero-sub', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.3')
-    .to('#hero-ctas', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.4')
-    .to('#scroll-hint', { opacity: 0.5, duration: 0.6 }, '-=0.2');
+  tl.from('.letter', { opacity: 0, y: 40, duration: 0.6, stagger: 0.06, ease: 'back.out(1.7)' })
+    .from('#hero-sub', { opacity: 0, y: 20, duration: 0.8, ease: 'power3.out' }, '-=0.3')
+    .from('#hero-ctas', { opacity: 0, y: 20, duration: 0.6, ease: 'power3.out' }, '-=0.4');
 } catch(e) {
   clearTimeout(heroTimer);
   forceHeroVisible();

@@ -395,7 +395,8 @@
     }
 
     /* ─── REVEAL ─── */
-    .reveal { opacity: 0; transform: translateY(40px); }
+    .reveal { opacity: 1; transform: translateY(0); }
+    .reveal-init { opacity: 0; transform: translateY(40px); }
 
     /* ─── NOISE overlay ─── */
     body::before {
@@ -776,6 +777,7 @@ tl.to('#status-badge', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' })
 // SCROLL REVEALS
 // ═══════════════════════════════════════════════════════
 document.querySelectorAll('.reveal').forEach(el => {
+  el.classList.add('reveal-init');
   gsap.fromTo(el,
     { opacity: 0, y: 50 },
     {
@@ -784,7 +786,6 @@ document.querySelectorAll('.reveal').forEach(el => {
         trigger: el,
         start: 'top 95%',
         toggleActions: 'play none none none',
-        onEnter: () => gsap.set(el, { opacity: 1, y: 0 }),
       }
     }
   );

@@ -129,6 +129,11 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
       filter: drop-shadow(0 0 20px rgba(168,85,247,0.5));
+      animation: letterIn 0.5s ease both;
+    }
+    @keyframes letterIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     .hero-sub {
@@ -844,42 +849,29 @@ document.querySelectorAll('a, button, .tag, .project-card, .store-card').forEach
 // ═══════════════════════════════════════════════════════
 // GSAP HERO ANIMATION
 // ═══════════════════════════════════════════════════════
-gsap.registerPlugin(ScrollTrigger);
 
-// Build letters
+// Build letters with CSS animation stagger (no GSAP dependency)
 const titleEl = document.getElementById('hero-title');
-'iamdeathgod'.split('').forEach(ch => {
+'iamdeathgod'.split('').forEach((ch, i) => {
   const span = document.createElement('span');
   span.className = 'letter';
   span.textContent = ch;
+  span.style.animationDelay = (0.3 + i * 0.06) + 's';
   titleEl.appendChild(span);
 });
 
 // Force all hero elements visible immediately as fallback
 function forceHeroVisible() {
   document.querySelectorAll('.letter').forEach(l => { l.style.opacity = '1'; l.style.transform = 'none'; });
-  ['#status-badge','#hero-sub','#hero-ctas','#scroll-hint'].forEach(sel => {
+  ['#status-badge','#hero-sub','#hero-ctas'].forEach(sel => {
     const el = document.querySelector(sel);
     if (el) { el.style.opacity = '1'; el.style.transform = 'none'; }
   });
 }
+setTimeout(forceHeroVisible, 2500);
 
-// Try GSAP animation, fallback after 2s
-const heroTimer = setTimeout(forceHeroVisible, 2000);
-
-try {
-  const tl = gsap.timeline({ delay: 0.3, onComplete: () => clearTimeout(heroTimer) });
-  tl.from('.letter', { opacity: 0, y: 40, duration: 0.6, stagger: 0.06, ease: 'back.out(1.7)' })
-    .from('#hero-sub', { opacity: 0, y: 20, duration: 0.8, ease: 'power3.out' }, '-=0.3')
-    .from('#hero-ctas', { opacity: 0, y: 20, duration: 0.6, ease: 'power3.out' }, '-=0.4');
-} catch(e) {
-  clearTimeout(heroTimer);
-  forceHeroVisible();
-}
-
-// ═══════════════════════════════════════════════════════
-// SCROLL REVEALS
-// ═══════════════════════════════════════════════════════
+// GSAP scroll reveals only (not hero)
+gsap.registerPlugin(ScrollTrigger);
 document.querySelectorAll('.reveal').forEach(el => {
   el.classList.add('reveal-init');
   gsap.fromTo(el,

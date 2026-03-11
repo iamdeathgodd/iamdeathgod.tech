@@ -12,936 +12,252 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-
-  <!-- GSAP -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
-  <!-- Three.js r158 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg: #07070f;
-      --purple: #a855f7;
-      --cyan: #06b6d4;
-      --purple-dim: rgba(168,85,247,0.15);
-      --cyan-dim: rgba(6,182,212,0.15);
-      --text: #e2e8f0;
-      --muted: #64748b;
+      --bg: #000000;
+      --text: #FFFFFF;
+      --accent: #ECD06F;
+      --accent-dark: #d4b85c;
+      --muted: #888888;
       --card-bg: rgba(255,255,255,0.03);
-      --card-border: rgba(255,255,255,0.06);
+      --card-border: rgba(255,255,255,0.08);
+      --max-width: 1400px;
+      --section-pad: clamp(80px, 10vw, 120px);
     }
 
     html { scroll-behavior: smooth; }
-
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Space Grotesk', sans-serif;
-      cursor: none;
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
       overflow-x: hidden;
     }
 
-    /* ─── CUSTOM CURSOR ─── */
-    #cursor-dot {
-      position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--purple);
-      box-shadow: 0 0 10px var(--purple), 0 0 20px var(--purple);
-      transform: translate(-50%, -50%);
-      transition: transform .1s ease, background .2s;
-    }
-    #cursor-ring {
-      position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9998;
-      width: 36px; height: 36px; border-radius: 50%;
-      border: 1.5px solid rgba(168,85,247,0.6);
-      box-shadow: 0 0 12px rgba(168,85,247,0.3);
-      transform: translate(-50%, -50%);
-      transition: transform .18s ease, width .2s, height .2s, border-color .2s;
-    }
-    body:hover #cursor-ring { opacity: 1; }
+    /* ─── TYPOGRAPHY ─── */
+    h1, h2, h3, h4 { font-weight: 600; line-height: 1.2; }
+    .display { font-size: clamp(48px, 8vw, 96px); letter-spacing: -0.03em; margin-bottom: 1rem; }
+    .section-title { font-size: clamp(32px, 4vw, 48px); margin-bottom: 2rem; }
+    .body-text { font-size: clamp(16px, 2vw, 18px); color: var(--muted); }
+    a { color: var(--accent); text-decoration: none; transition: color .2s; }
+    a:hover { color: var(--accent-dark); }
 
-    /* ─── SCROLLBAR ─── */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: linear-gradient(var(--purple), var(--cyan)); border-radius: 4px; }
+    /* ─── LAYOUT ─── */
+    .container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    section { padding: var(--section-pad) 0; }
 
     /* ─── NAVBAR ─── */
     nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      padding: 0 2rem;
-      height: 64px;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      padding: 1.5rem 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--card-border);
+    }
+    .nav-inner {
       display: flex; align-items: center; justify-content: space-between;
-      background: rgba(7,7,15,0.6);
-      backdrop-filter: blur(18px) saturate(180%);
-      -webkit-backdrop-filter: blur(18px) saturate(180%);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      transition: transform .4s cubic-bezier(.4,0,.2,1);
     }
-    nav.hidden { transform: translateY(-100%); }
-
-    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-logo { font-weight: 700; font-size: 1.1rem; letter-spacing: .05em; }
+    .nav-links {
+      display: flex; gap: 2.5rem; list-style: none;
+    }
     .nav-links a {
-      font-family: 'Space Mono', monospace; font-size: .75rem;
-      color: var(--muted); text-decoration: none; letter-spacing: .08em;
-      text-transform: uppercase;
-      transition: color .2s;
+      font-size: .85rem; color: var(--muted);
+      position: relative; padding: .25rem 0;
     }
-    .nav-links a:hover { color: var(--cyan); }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 1px;
+      background: var(--accent); transition: width .3s ease;
+    }
+    .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+    .nav-links a:hover { color: var(--text); }
+    .btn {
+      display: inline-block; padding: .75rem 1.5rem; border: 1px solid var(--accent);
+      border-radius: 4px; color: var(--accent); font-size: .85rem; letter-spacing: .05em;
+      transition: all .2s;
+    }
+    .btn:hover { background: var(--accent); color: var(--bg); }
 
     /* ─── HERO ─── */
     #hero {
-      position: relative; width: 100%; height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      overflow: hidden;
+      min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center; padding-top: 80px;
     }
-
-    #three-canvas {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      z-index: 0;
+    .hero-portrait {
+      width: 160px; height: 160px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #fff);
+      margin-bottom: 2rem; display: flex; align-items: center; justify-content: center;
+      font-size: 3rem; color: var(--bg);
     }
-
-    .hero-content {
-      position: relative; z-index: 2;
-      text-align: center;
-      display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
-    }
-
-    .hero-title {
-      font-family: 'Space Mono', monospace;
-      font-size: clamp(2.8rem, 9vw, 7.5rem);
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: -.02em;
-      display: flex;
-    }
-
-    .hero-title .letter {
-      display: inline-block;
-      background: linear-gradient(135deg, var(--purple) 0%, var(--cyan) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      filter: drop-shadow(0 0 20px rgba(168,85,247,0.5));
-      animation: letterIn 0.5s ease both;
-    }
-    @keyframes letterIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .hero-sub {
-      font-family: 'Space Mono', monospace;
-      font-size: clamp(.85rem, 2.5vw, 1.1rem);
-      color: var(--muted);
-      letter-spacing: .15em;
-    }
-
-    .status-badge {
-      display: inline-flex; align-items: center; gap: .5rem;
-      padding: .4rem 1rem;
-      border: 1px solid rgba(34,197,94,0.3);
-      border-radius: 99px;
-      background: rgba(34,197,94,0.06);
-      font-size: .78rem; letter-spacing: .05em; color: #86efac;
-    }
-    .status-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: #22c55e;
-      box-shadow: 0 0 6px #22c55e;
-      animation: pulse-green 2s ease-in-out infinite;
-    }
-    @keyframes pulse-green {
-      0%,100% { box-shadow: 0 0 6px #22c55e; }
-      50% { box-shadow: 0 0 14px #22c55e, 0 0 28px #22c55e; }
-    }
-
-    .hero-ctas {
-      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
-    }
-    .btn {
-      font-family: 'Space Mono', monospace;
-      font-size: .82rem; letter-spacing: .08em;
-      padding: .75rem 1.75rem;
-      border-radius: 8px;
-      text-decoration: none;
-      transition: transform .2s, box-shadow .2s;
-      cursor: none;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--purple), var(--cyan));
-      color: #fff;
-      box-shadow: 0 0 20px rgba(168,85,247,0.3);
-    }
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 32px rgba(168,85,247,0.5), 0 0 60px rgba(6,182,212,0.25);
-    }
-    .btn-secondary {
-      border: 1px solid rgba(168,85,247,0.4);
-      color: var(--purple);
-      background: rgba(168,85,247,0.06);
-    }
-    .btn-secondary:hover {
-      transform: translateY(-2px);
-      border-color: var(--purple);
-      box-shadow: 0 0 20px rgba(168,85,247,0.3);
-    }
-
-    /* Scroll indicator */
-    .scroll-hint {
-      position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
-      z-index: 2; display: flex; flex-direction: column; align-items: center; gap: .4rem;
-      opacity: 0;
-    }
-    .scroll-hint span { font-family: 'Space Mono', monospace; font-size: .65rem; color: var(--muted); letter-spacing: .1em; }
-    .scroll-line {
-      width: 1px; height: 40px;
-      background: linear-gradient(to bottom, var(--purple), transparent);
-      animation: scroll-drop 1.8s ease-in-out infinite;
-    }
-    @keyframes scroll-drop {
-      0% { transform: scaleY(0); transform-origin: top; opacity: 1; }
-      50% { transform: scaleY(1); transform-origin: top; opacity: 1; }
-      100% { transform: scaleY(1); transform-origin: bottom; opacity: 0; }
-    }
-
-    /* ─── SECTIONS ─── */
-    section {
-      max-width: 1100px; margin: 0 auto;
-      padding: 6rem 2rem;
-    }
-
-    .section-label {
-      font-family: 'Space Mono', monospace;
-      font-size: .7rem; letter-spacing: .2em; text-transform: uppercase;
-      color: var(--cyan); margin-bottom: .75rem;
-    }
-
-    h2 {
-      font-size: clamp(1.8rem, 4vw, 2.8rem);
-      font-weight: 700; line-height: 1.15;
-      background: linear-gradient(135deg, #fff 0%, var(--muted) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      margin-bottom: 1rem;
-    }
-
-    .divider {
-      height: 1px;
-      background: linear-gradient(90deg, var(--purple), var(--cyan), transparent);
-      margin-bottom: 3rem; opacity: .3;
-    }
+    .hero-title { font-size: clamp(48px, 10vw, 120px); font-weight: 700; letter-spacing: -0.02em; margin-bottom: .5rem; }
+    .hero-subtitle { font-size: clamp(18px, 3vw, 28px); color: var(--muted); font-weight: 400; margin-bottom: 3rem; }
+    .hero-nav { display: flex; gap: 2rem; list-style: none; margin-bottom: 3rem; }
+    .hero-nav a { font-size: .9rem; color: var(--muted); letter-spacing: .05em; }
+    .hero-nav a:hover { color: var(--accent); }
 
     /* ─── ABOUT ─── */
+    #about { border-top: 1px solid var(--card-border); }
     .about-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;
     }
-    @media(max-width:768px){ .about-grid { grid-template-columns: 1fr; gap: 2rem; } }
+    .about-label { font-family: 'Space Mono', monospace; font-size: .75rem; color: var(--accent); letter-spacing: .1em; margin-bottom: 1rem; }
+    .about-text { font-size: 1.1rem; line-height: 1.8; color: var(--muted); }
 
-    .about-bio {
-      font-size: 1.1rem; line-height: 1.8;
-      color: #94a3b8;
+    /* ─── PORTFOLIO ─── */
+    #portfolio .portfolio-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;
     }
-
-    .about-skull {
-      display: flex; align-items: center; justify-content: center;
-      position: relative;
-    }
-
-    /* Animated Avatar */
-    .avatar-wrap {
-      position: relative;
-      width: 280px; height: 280px;
-      margin: 0 auto;
-    }
-    .avatar-canvas {
-      width: 100%; height: 100%;
-      border-radius: 50%;
-    }
-    .avatar-ring {
-      position: absolute; inset: -8px;
-      border-radius: 50%;
-      background: conic-gradient(from 0deg, #a855f7, #06b6d4, #a855f7);
-      animation: spin 4s linear infinite;
-      z-index: -1;
-      filter: blur(4px);
-    }
-    .avatar-ring-solid {
-      position: absolute; inset: -3px;
-      border-radius: 50%;
-      background: conic-gradient(from 0deg, #a855f7, #06b6d4, transparent, #a855f7);
-      animation: spin 3s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .avatar-badge {
-      position: absolute; bottom: 8px; right: 8px;
-      background: var(--surface); border: 1px solid rgba(168,85,247,0.4);
-      border-radius: 20px; padding: 4px 12px;
-      font-family: 'Space Mono', monospace;
-      font-size: 0.65rem; color: var(--purple-light);
-      white-space: nowrap;
-    }
-
-    .tags { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 2rem; }
-    .tag {
-      font-family: 'Space Mono', monospace;
-      font-size: .72rem; letter-spacing: .05em;
-      padding: .35rem .9rem;
-      border-radius: 6px;
-      border: 1px solid var(--card-border);
-      background: var(--card-bg);
-      color: var(--muted);
-      transition: border-color .2s, color .2s, box-shadow .2s;
-    }
-    .tag:hover {
-      border-color: var(--purple);
-      color: var(--purple);
-      box-shadow: 0 0 12px rgba(168,85,247,0.2);
-    }
-
-    /* ─── PROJECTS ─── */
-    .projects-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 1.5rem;
-    }
-
     .project-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px; padding: 2rem;
-      position: relative; overflow: hidden;
-      transition: transform .3s, border-color .3s, box-shadow .3s;
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 12px; overflow: hidden; transition: transform .3s, border-color .3s;
     }
-    .project-card::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(circle at top left, rgba(168,85,247,0.08), transparent 60%);
-      opacity: 0; transition: opacity .3s;
-      pointer-events: none;
+    .project-card:hover { transform: translateY(-8px); border-color: var(--accent); }
+    .project-img {
+      width: 100%; aspect-ratio: 4/3; background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+      display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--muted);
     }
-    .project-card:hover { transform: translateY(-6px); border-color: rgba(168,85,247,0.4); box-shadow: 0 20px 60px rgba(168,85,247,0.1); }
-    .project-card:hover::before { opacity: 1; }
+    .project-info { padding: 1.5rem; }
+    .project-title { font-size: 1.25rem; font-weight: 600; margin-bottom: .5rem; }
+    .project-desc { font-size: .9rem; color: var(--muted); margin-bottom: 1rem; line-height: 1.6; }
+    .project-link { font-size: .85rem; color: var(--accent); letter-spacing: .05em; }
 
-    .project-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
-    .project-title {
-      font-size: 1.15rem; font-weight: 600; margin-bottom: .5rem;
-      color: #fff;
-    }
-    .project-desc { font-size: .9rem; color: var(--muted); margin-bottom: 1.25rem; line-height: 1.6; }
-    .project-link {
-      font-family: 'Space Mono', monospace;
-      font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
-      color: var(--cyan); text-decoration: none;
-      display: inline-flex; align-items: center; gap: .4rem;
-      transition: gap .2s, color .2s;
-    }
-    .project-link:hover { gap: .7rem; color: var(--purple); }
-
-    /* ─── STORE ─── */
-    #store { background: none; }
-
-    .store-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 1.5rem;
-    }
-
-    .store-card {
-      border-radius: 16px; padding: 2rem;
-      border: 1px solid var(--card-border);
-      background: var(--card-bg);
-      position: relative; overflow: hidden;
-      transition: transform .3s, box-shadow .3s;
-    }
-    .store-card::after {
-      content: '';
-      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, var(--purple), var(--cyan));
-      transform: scaleX(0); transform-origin: left;
-      transition: transform .4s cubic-bezier(.4,0,.2,1);
-    }
-    .store-card:hover { transform: translateY(-5px); box-shadow: 0 20px 60px rgba(6,182,212,0.1); }
-    .store-card:hover::after { transform: scaleX(1); }
-
-    .store-icon { font-size: 2.2rem; margin-bottom: 1rem; display: block; }
-    .store-name { font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: .5rem; }
-    .store-price {
-      font-family: 'Space Mono', monospace;
-      font-size: 1.4rem; font-weight: 700;
-      background: linear-gradient(135deg, var(--purple), var(--cyan));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      margin-bottom: 1.25rem;
-    }
-    .btn-store {
-      display: inline-block; width: 100%; text-align: center;
-      padding: .7rem; border-radius: 8px;
-      background: linear-gradient(135deg, var(--purple), var(--cyan));
-      color: #fff;
-      font-family: 'Space Mono', monospace; font-size: .78rem; letter-spacing: .08em;
-      text-decoration: none;
-      transition: opacity .2s, transform .2s, box-shadow .2s;
-    }
-    .btn-store:hover { opacity: .9; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(168,85,247,0.3); }
-
-    /* ─── SOCIALS ─── */
-    #socials { text-align: center; }
-
-    .socials-grid {
-      display: flex; flex-wrap: wrap; gap: 1.25rem;
-      justify-content: center; margin-top: 2.5rem;
-    }
-
-    .social-link {
-      display: flex; align-items: center; gap: .75rem;
-      padding: .9rem 1.6rem;
-      border-radius: 12px;
-      border: 1px solid var(--card-border);
-      background: var(--card-bg);
-      color: var(--muted); text-decoration: none;
-      font-family: 'Space Mono', monospace; font-size: .8rem; letter-spacing: .05em;
-      transition: border-color .2s, color .2s, box-shadow .2s, transform .2s;
-      position: relative;
-    }
-    .social-link svg { width: 18px; height: 18px; flex-shrink: 0; }
-    .social-link:hover { color: #fff; border-color: var(--purple); box-shadow: 0 0 20px rgba(168,85,247,0.2); }
-
-    .discord-note {
-      font-family: 'Space Mono', monospace; font-size: .72rem;
-      color: var(--muted); margin-top: 1rem;
-    }
+    /* ─── CONTACT ─── */
+    #contact { border-top: 1px solid var(--card-border); text-align: center; }
+    .contact-email { font-size: clamp(24px, 4vw, 48px); font-weight: 600; color: var(--text); margin: 2rem 0; }
+    .contact-email:hover { color: var(--accent); }
 
     /* ─── FOOTER ─── */
     footer {
-      text-align: center; padding: 3rem 2rem;
-      border-top: 1px solid var(--card-border);
-      font-family: 'Space Mono', monospace; font-size: .72rem; color: var(--muted);
-      letter-spacing: .08em;
+      border-top: 1px solid var(--card-border); padding: 3rem 0; text-align: center; color: var(--muted); font-size: .85rem;
     }
-    footer span {
-      background: linear-gradient(135deg, var(--purple), var(--cyan));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
+    .footer-socials { display: flex; gap: 1.5rem; justify-content: center; list-style: none; margin-bottom: 1rem; }
+    .footer-socials a { color: var(--muted); transition: color .2s; }
+    .footer-socials a:hover { color: var(--accent); }
 
-    /* ─── REVEAL ─── */
-    .reveal { opacity: 1; transform: translateY(0); }
-    .reveal-init { opacity: 0; transform: translateY(40px); }
-
-    /* ─── NOISE overlay ─── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0; z-index: 1; pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-      opacity: .025;
-    }
-
-    /* ─── Glow orbs ─── */
-    .orb {
-      position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; filter: blur(80px);
-    }
-    .orb-1 {
-      width: 500px; height: 500px; top: -150px; left: -150px;
-      background: radial-gradient(circle, rgba(168,85,247,0.15), transparent 70%);
-    }
-    .orb-2 {
-      width: 400px; height: 400px; bottom: -100px; right: -100px;
-      background: radial-gradient(circle, rgba(6,182,212,0.12), transparent 70%);
-    }
-
-    @media(max-width:640px) {
-      .nav-links { display: none; }
-      .hero-title { font-size: clamp(2.2rem, 12vw, 3.5rem); }
+    /* ─── MOBILE ─── */
+    @media (max-width: 900px) {
+      .nav-links { display: none; } /* hamburger todo */
+      .about-grid { grid-template-columns: 1fr; }
+      #portfolio .portfolio-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-<!-- Cursor -->
-<div id="cursor-dot"></div>
-<div id="cursor-ring"></div>
-
-<!-- Ambient orbs -->
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
-
-<!-- ─── NAVBAR ─── -->
-<nav id="navbar">
-  <a href="#hero" style="text-decoration:none;cursor:none;">
-    <svg viewBox="0 0 200 44" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:44px;width:auto">
-      <defs>
-        <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#a855f7"/>
-          <stop offset="100%" stop-color="#06b6d4"/>
-        </linearGradient>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-          <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
-      <text x="8" y="30" font-family="Space Mono,monospace" font-size="20" font-weight="700" fill="url(#lg)" filter="url(#glow)">iamdeathgod</text>
-      <text x="8" y="42" font-family="Space Mono,monospace" font-size="7" fill="#475569" letter-spacing="3">// GAMING · ANIME · TECH</text>
-    </svg>
-  </a>
-  <ul class="nav-links">
-    <li><a href="#about">About</a></li>
-    <li><a href="#projects">Build</a></li>
-    <li><a href="#store">Store</a></li>
-    <li><a href="#socials">Socials</a></li>
-  </ul>
-</nav>
-
-<!-- ─── HERO ─── -->
-<section id="hero">
-  <canvas id="three-canvas"></canvas>
-
-  <div class="hero-content">
-    <div class="status-badge" id="status-badge">
-      <span class="status-dot"></span>
-      open to collabs
+  <!-- NAV -->
+  <nav>
+    <div class="container nav-inner">
+      <div class="nav-logo">IAMDEATHGOD</div>
+      <ul class="nav-links">
+        <li><a href="#work">Work</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="https://blog.iamdeathgod.tech">Blog</a></li>
+        <li><a href="https://gen.iamdeathgod.tech">Gen</a></li>
+        <li><a href="https://iamdeathgod.gumroad.com">Store</a></li>
+      </ul>
+      <a href="#contact" class="btn">Contact</a>
     </div>
+  </nav>
 
-    <h1 class="hero-title" id="hero-title">
-      <!-- letters injected by JS -->
-    </h1>
-
-    <p class="hero-sub" id="hero-sub">// gaming · anime · tech</p>
-
-    <div class="hero-ctas" id="hero-ctas">
-      <a href="https://iamdeathgod.gumroad.com" class="btn btn-primary" target="_blank" rel="noopener">View Store →</a>
-      <a href="https://blog.iamdeathgod.tech" class="btn btn-secondary" target="_blank" rel="noopener">Read Blog →</a>
+  <!-- HERO -->
+  <section id="hero">
+    <div class="container">
+      <div class="hero-portrait">☠️</div>
+      <h1 class="hero-title">Amit Yadav</h1>
+      <p class="hero-subtitle">gaming · anime · tech</p>
+      <nav>
+        <ul class="hero-nav">
+          <li><a href="#work">Work</a></li>
+          <li><a href="https://blog.iamdeathgod.tech">Blog</a></li>
+          <li><a href="https://gen.iamdeathgod.tech">Gen</a></li>
+          <li><a href="https://iamdeathgod.gumroad.com">Store</a></li>
+        </ul>
+      </nav>
+      <a href="#contact" class="btn">Get in touch</a>
     </div>
-  </div>
+  </section>
 
-  <div class="scroll-hint" id="scroll-hint">
-    <div class="scroll-line"></div>
-    <span>scroll</span>
-  </div>
-</section>
-
-<!-- ─── ABOUT ─── -->
-<section id="about">
-  <div class="reveal">
-    <p class="section-label">// 001 — about</p>
-    <h2>Who is deathgod?</h2>
-    <div class="divider"></div>
-  </div>
-  <div class="about-grid">
-    <div class="reveal">
-      <p class="about-bio">
-        I'm Amit — I spend too much time gaming, watching anime, and building things on the internet.
-        When I'm not doing that, I'm making Notion templates so other people can stay organized while doing the same.
-      </p>
-      <div class="tags">
-        <span class="tag">⚔️ Gaming</span>
-        <span class="tag">🌸 Anime</span>
-        <span class="tag">📋 Notion</span>
-        <span class="tag">💻 Web Dev</span>
-        <span class="tag">🦉 Night Owl</span>
-        <span class="tag">🖤 Dark Mode Enjoyer</span>
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div>
+          <p class="about-label">// About</p>
+          <h2 class="section-title">I build tools for gamers, anime fans, and creators.</h2>
+        </div>
+        <div class="about-text">
+          <p>I'm a developer who spends too much time gaming and watching anime. I channel that obsession into building Notion templates and web tools that actually help people.</p>
+          <p style="margin-top: 1.5rem;">Right now I'm working on an AI image generator and a suite of productivity templates. Always up for interesting collabs.</p>
+        </div>
       </div>
     </div>
-    <div class="reveal about-skull">
-      <div class="avatar-wrap">
-        <div class="avatar-ring"></div>
-        <div class="avatar-ring-solid"></div>
-        <canvas id="avatar-canvas" class="avatar-canvas"></canvas>
-        <div class="avatar-badge">☠️ iamdeathgod</div>
+  </section>
+
+  <!-- PORTFOLIO -->
+  <section id="work">
+    <div class="container">
+      <p class="about-label">// Selected Work</p>
+      <h2 class="section-title">Projects</h2>
+      <div class="portfolio-grid">
+        <!-- Blog -->
+        <article class="project-card">
+          <div class="project-img">📝</div>
+          <div class="project-info">
+            <h3 class="project-title">iamdeathgod Blog</h3>
+            <p class="project-desc">Gaming, anime & productivity content with Notion templates.</p>
+            <a href="https://blog.iamdeathgod.tech" class="project-link">View Blog →</a>
+          </div>
+        </article>
+        <!-- Gen -->
+        <article class="project-card">
+          <div class="project-img">🎨</div>
+          <div class="project-info">
+            <h3 class="project-title">Gen AI</h3>
+            <p class="project-desc">AI image generation playground with full customization.</p>
+            <a href="https://gen.iamdeathgod.tech" class="project-link">Try Gen →</a>
+          </div>
+        </article>
+        <!-- Templates -->
+        <article class="project-card">
+          <div class="project-img">📋</div>
+          <div class="project-info">
+            <h3 class="project-title">Notion Templates</h3>
+            <p class="project-desc">Gaming HQ, Anime Watchlist, Creator Dashboard.</p>
+            <a href="https://iamdeathgod.gumroad.com" class="project-link">Visit Store →</a>
+          </div>
+        </article>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- ─── PROJECTS ─── -->
-<section id="projects">
-  <div class="reveal">
-    <p class="section-label">// 002 — what i build</p>
-    <h2>Projects</h2>
-    <div class="divider"></div>
-  </div>
-  <div class="projects-grid">
-    <div class="project-card reveal">
-      <span class="project-icon">⚡</span>
-      <div class="project-title">AI Image Generator</div>
-      <p class="project-desc">Free AI image generation — create anything you can imagine, powered by cutting-edge models.</p>
-      <a href="https://gen.iamdeathgod.tech" class="project-link" target="_blank" rel="noopener">gen.iamdeathgod.tech →</a>
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="container">
+      <p class="about-label">// Contact</p>
+      <h2 class="section-title">Let's work together</h2>
+      <a href="mailto:me@iamdeathgod.tech" class="contact-email">me@iamdeathgod.tech</a>
+      <p class="body-text" style="max-width: 500px; margin: 0 auto;">Open for freelance, collabs, or just to talk about anime and Notion setups.</p>
     </div>
-    <div class="project-card reveal">
-      <span class="project-icon">✍️</span>
-      <div class="project-title">Blog</div>
-      <p class="project-desc">Gaming, anime & productivity. Thoughts that matter from someone who lives in the dark.</p>
-      <a href="https://blog.iamdeathgod.tech" class="project-link" target="_blank" rel="noopener">blog.iamdeathgod.tech →</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <ul class="footer-socials">
+        <li><a href="https://twitter.com/iamdeathgod">Twitter</a></li>
+        <li><a href="https://github.com/iamdeathgod">GitHub</a></li>
+        <li><a href="https://instagram.com/iamdeathgod">Instagram</a></li>
+      </ul>
+      <p>© 2026 iamdeathgod. Built with ☠️</p>
     </div>
-    <div class="project-card reveal">
-      <span class="project-icon">🎮</span>
-      <div class="project-title">Notion Templates</div>
-      <p class="project-desc">Organized life for gamers. Premium templates that actually fit how your brain works.</p>
-      <a href="https://iamdeathgod.gumroad.com" class="project-link" target="_blank" rel="noopener">iamdeathgod.gumroad.com →</a>
-    </div>
-  </div>
-</section>
+  </footer>
 
-<!-- ─── STORE ─── -->
-<section id="store">
-  <div class="reveal">
-    <p class="section-label">// 003 — store</p>
-    <h2>Notion Templates</h2>
-    <div class="divider"></div>
-  </div>
-  <div class="store-grid">
-    <div class="store-card reveal">
-      <span class="store-icon">🎮</span>
-      <div class="store-name">Gaming HQ</div>
-      <div class="store-price">$7</div>
-      <a href="https://iamdeathgod.gumroad.com/l/gamingnotion" class="btn-store" target="_blank" rel="noopener">Get it →</a>
-    </div>
-    <div class="store-card reveal">
-      <span class="store-icon">⛩️</span>
-      <div class="store-name">Anime Vault</div>
-      <div class="store-price">$7</div>
-      <a href="https://iamdeathgod.gumroad.com" class="btn-store" target="_blank" rel="noopener">Get it →</a>
-    </div>
-    <div class="store-card reveal">
-      <span class="store-icon">🚀</span>
-      <div class="store-name">Creator Dashboard</div>
-      <div class="store-price">$9</div>
-      <a href="https://iamdeathgod.gumroad.com" class="btn-store" target="_blank" rel="noopener">Get it →</a>
-    </div>
-  </div>
-</section>
-
-<!-- ─── SOCIALS ─── -->
-<section id="socials">
-  <div class="reveal">
-    <p class="section-label">// 004 — find me</p>
-    <h2>Socials</h2>
-    <div class="divider"></div>
-  </div>
-  <div class="socials-grid">
-    <a href="https://github.com/iamdeathgod" class="social-link" target="_blank" rel="noopener">
-      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-      GitHub
-    </a>
-    <a href="https://twitter.com/iamdeathgod" class="social-link" target="_blank" rel="noopener">
-      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-      Twitter / X
-    </a>
-    <a href="https://instagram.com/iamdeathgod" class="social-link" target="_blank" rel="noopener">
-      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-      Instagram
-    </a>
-    <div class="social-link" style="cursor:none;">
-      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 00-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 00-5.487 0 12.36 12.36 0 00-.617-1.23A.077.077 0 008.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 00-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 00.031.055 20.03 20.03 0 005.993 2.98.078.078 0 00.084-.026c.462-.62.874-1.275 1.226-1.963.021-.04.001-.088-.041-.104a13.201 13.201 0 01-1.872-.878.075.075 0 01-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 01.078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 01.079.009c.12.098.245.195.372.288a.075.075 0 01-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 00-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 00.084.028 19.963 19.963 0 006.002-2.981.076.076 0 00.032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 00-.031-.028zM8.02 15.278c-1.182 0-2.157-1.069-2.157-2.38 0-1.312.956-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.956 2.38-2.157 2.38zm7.975 0c-1.183 0-2.157-1.069-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.946 2.38-2.157 2.38z"/></svg>
-      iamdeathgodd
-    </div>
-  </div>
-  <p class="discord-note reveal" style="margin-top:1.5rem;">☝️ Discord display only — DM me there</p>
-</section>
-
-<!-- ─── FOOTER ─── -->
-<footer>
-  <p>built with ☠️ by <span>iamdeathgod</span> · © 2025</p>
-</footer>
-
-<script>
-// ═══════════════════════════════════════════════════════
-// CURSOR
-// ═══════════════════════════════════════════════════════
-const dot = document.getElementById('cursor-dot');
-const ring = document.getElementById('cursor-ring');
-let mx = 0, my = 0, rx = 0, ry = 0;
-
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  dot.style.left = mx + 'px';
-  dot.style.top = my + 'px';
-});
-
-function lerpCursor() {
-  rx += (mx - rx) * 0.12;
-  ry += (my - ry) * 0.12;
-  ring.style.left = rx + 'px';
-  ring.style.top = ry + 'px';
-  requestAnimationFrame(lerpCursor);
-}
-lerpCursor();
-
-document.querySelectorAll('a, button, .tag, .project-card, .store-card').forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    dot.style.transform = 'translate(-50%,-50%) scale(2)';
-    ring.style.width = '55px'; ring.style.height = '55px';
-    ring.style.borderColor = 'rgba(6,182,212,0.7)';
-  });
-  el.addEventListener('mouseleave', () => {
-    dot.style.transform = 'translate(-50%,-50%) scale(1)';
-    ring.style.width = '36px'; ring.style.height = '36px';
-    ring.style.borderColor = 'rgba(168,85,247,0.6)';
-  });
-});
-
-// ═══════════════════════════════════════════════════════
-// THREE.JS BACKGROUND
-// ═══════════════════════════════════════════════════════
-(function initThree() {
-  const canvas = document.getElementById('three-canvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x07070f, 1);
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.z = 28;
-
-  // Particles
-  const particleCount = 1400;
-  const geo = new THREE.BufferGeometry();
-  const pos = new Float32Array(particleCount * 3);
-  const colors = new Float32Array(particleCount * 3);
-
-  for (let i = 0; i < particleCount; i++) {
-    pos[i * 3]     = (Math.random() - 0.5) * 100;
-    pos[i * 3 + 1] = (Math.random() - 0.5) * 100;
-    pos[i * 3 + 2] = (Math.random() - 0.5) * 60;
-    const t = Math.random();
-    colors[i * 3]     = 0.66 + t * (0.024 - 0.66);
-    colors[i * 3 + 1] = 0.33 + t * (0.714 - 0.33);
-    colors[i * 3 + 2] = 0.97 + t * (0.831 - 0.97);
-  }
-
-  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-  const particleMat = new THREE.PointsMaterial({
-    size: 0.18,
-    vertexColors: true,
-    transparent: true,
-    opacity: 0.75,
-    sizeAttenuation: true,
-  });
-
-  const particles = new THREE.Points(geo, particleMat);
-  scene.add(particles);
-
-  // Wireframe Icosahedron
-  const icoGeo = new THREE.IcosahedronGeometry(6, 1);
-  const icoMat = new THREE.MeshBasicMaterial({
-    color: 0xa855f7,
-    wireframe: true,
-    transparent: true,
-    opacity: 0.18,
-  });
-  const ico = new THREE.Mesh(icoGeo, icoMat);
-  scene.add(ico);
-
-  // Second ico ring
-  const icoGeo2 = new THREE.IcosahedronGeometry(9, 1);
-  const icoMat2 = new THREE.MeshBasicMaterial({
-    color: 0x06b6d4,
-    wireframe: true,
-    transparent: true,
-    opacity: 0.07,
-  });
-  const ico2 = new THREE.Mesh(icoGeo2, icoMat2);
-  scene.add(ico2);
-
-  // Mouse parallax
-  let tx = 0, ty = 0;
-  document.addEventListener('mousemove', e => {
-    tx = (e.clientX / window.innerWidth - 0.5) * 2;
-    ty = (e.clientY / window.innerHeight - 0.5) * 2;
-  });
-
-  let clock = new THREE.Clock();
-  function animate() {
-    requestAnimationFrame(animate);
-    const t = clock.getElapsedTime();
-
-    particles.rotation.y = t * 0.02;
-    particles.rotation.x = t * 0.008;
-
-    ico.rotation.y = t * 0.25;
-    ico.rotation.x = t * 0.14;
-    ico2.rotation.y = -t * 0.12;
-    ico2.rotation.z = t * 0.09;
-
-    camera.position.x += (tx * 2 - camera.position.x) * 0.03;
-    camera.position.y += (-ty * 1.5 - camera.position.y) * 0.03;
-    camera.lookAt(scene.position);
-
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-})();
-
-// ═══════════════════════════════════════════════════════
-// AVATAR CANVAS — rotating skull/geometry in about section
-// ═══════════════════════════════════════════════════════
-(function initAvatar() {
-  const canvas = document.getElementById('avatar-canvas');
-  if (!canvas) return;
-  const size = 280;
-  canvas.width = size; canvas.height = size;
-  const renderer2 = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer2.setSize(size, size);
-  renderer2.setPixelRatio(window.devicePixelRatio);
-  renderer2.setClearColor(0x000000, 0);
-
-  const scene2 = new THREE.Scene();
-  const cam2 = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-  cam2.position.set(0, 0, 3.5);
-
-  // Outer icosahedron wireframe
-  const outerGeo = new THREE.IcosahedronGeometry(1.3, 1);
-  const outerMat = new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true, transparent: true, opacity: 0.4 });
-  const outer = new THREE.Mesh(outerGeo, outerMat);
-  scene2.add(outer);
-
-  // Inner dodecahedron wireframe
-  const innerGeo = new THREE.DodecahedronGeometry(0.85, 0);
-  const innerMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true, transparent: true, opacity: 0.6 });
-  const inner = new THREE.Mesh(innerGeo, innerMat);
-  scene2.add(inner);
-
-  // Skull text in center using sprite
-  const spriteCanvas = document.createElement('canvas');
-  spriteCanvas.width = 256; spriteCanvas.height = 256;
-  const ctx2 = spriteCanvas.getContext('2d');
-  ctx2.font = '120px serif';
-  ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
-  ctx2.fillText('☠️', 128, 128);
-  const spriteTex = new THREE.CanvasTexture(spriteCanvas);
-  const spriteMat = new THREE.SpriteMaterial({ map: spriteTex, transparent: true });
-  const sprite = new THREE.Sprite(spriteMat);
-  sprite.scale.set(1.2, 1.2, 1);
-  scene2.add(sprite);
-
-  // Ambient particles
-  const pts = [];
-  for (let i = 0; i < 80; i++) {
-    pts.push((Math.random()-0.5)*4, (Math.random()-0.5)*4, (Math.random()-0.5)*4);
-  }
-  const ptGeo = new THREE.BufferGeometry();
-  ptGeo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
-  const ptMat = new THREE.PointsMaterial({ color: 0xa855f7, size: 0.04, transparent: true, opacity: 0.7 });
-  scene2.add(new THREE.Points(ptGeo, ptMat));
-
-  let t2 = 0;
-  function animAvatar() {
-    requestAnimationFrame(animAvatar);
-    t2 += 0.008;
-    outer.rotation.y = t2;
-    outer.rotation.x = t2 * 0.4;
-    inner.rotation.y = -t2 * 1.3;
-    inner.rotation.z = t2 * 0.6;
-    sprite.position.y = Math.sin(t2 * 2) * 0.05;
-    renderer2.render(scene2, cam2);
-  }
-  animAvatar();
-})();
-
-// ═══════════════════════════════════════════════════════
-// GSAP HERO ANIMATION
-// ═══════════════════════════════════════════════════════
-
-// Build letters with CSS animation stagger (no GSAP dependency)
-const titleEl = document.getElementById('hero-title');
-'iamdeathgod'.split('').forEach((ch, i) => {
-  const span = document.createElement('span');
-  span.className = 'letter';
-  span.textContent = ch;
-  span.style.animationDelay = (0.3 + i * 0.06) + 's';
-  titleEl.appendChild(span);
-});
-
-// Force all hero elements visible immediately as fallback
-function forceHeroVisible() {
-  document.querySelectorAll('.letter').forEach(l => { l.style.opacity = '1'; l.style.transform = 'none'; });
-  ['#status-badge','#hero-sub','#hero-ctas'].forEach(sel => {
-    const el = document.querySelector(sel);
-    if (el) { el.style.opacity = '1'; el.style.transform = 'none'; }
-  });
-}
-setTimeout(forceHeroVisible, 2500);
-
-// GSAP scroll reveals only (not hero)
-gsap.registerPlugin(ScrollTrigger);
-document.querySelectorAll('.reveal').forEach(el => {
-  el.classList.add('reveal-init');
-  gsap.fromTo(el,
-    { opacity: 0, y: 50 },
-    {
-      opacity: 1, y: 0, duration: 0.9, ease: 'power3.out',
-      scrollTrigger: {
-        trigger: el,
-        start: 'top 95%',
-        toggleActions: 'play none none none',
-      }
-    }
-  );
-});
-
-// Fallback: ensure all reveals become visible after 3s no matter what
-setTimeout(() => {
-  document.querySelectorAll('.reveal').forEach(el => {
-    if (parseFloat(getComputedStyle(el).opacity) < 0.5) {
-      gsap.to(el, { opacity: 1, y: 0, duration: 0.6 });
-    }
-  });
-}, 3000);
-
-// ═══════════════════════════════════════════════════════
-// NAVBAR HIDE/SHOW ON SCROLL
-// ═══════════════════════════════════════════════════════
-const navbar = document.getElementById('navbar');
-let lastScroll = 0;
-
-window.addEventListener('scroll', () => {
-  const cur = window.scrollY;
-  if (cur > lastScroll && cur > 80) {
-    navbar.classList.add('hidden');
-  } else {
-    navbar.classList.remove('hidden');
-  }
-  lastScroll = cur;
-}, { passive: true });
-
-// ═══════════════════════════════════════════════════════
-// MAGNETIC SOCIAL LINKS
-// ═══════════════════════════════════════════════════════
-document.querySelectorAll('.social-link[href]').forEach(link => {
-  link.addEventListener('mousemove', e => {
-    const r = link.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2;
-    const dx = (e.clientX - cx) * 0.28;
-    const dy = (e.clientY - cy) * 0.28;
-    gsap.to(link, { x: dx, y: dy, duration: 0.3, ease: 'power2.out' });
-  });
-  link.addEventListener('mouseleave', () => {
-    gsap.to(link, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1,0.4)' });
-  });
-});
-
-// ═══════════════════════════════════════════════════════
-// SMOOTH SCROLL LINKS
-// ═══════════════════════════════════════════════════════
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', e => {
-    const target = document.querySelector(a.getAttribute('href'));
-    if (target) {
-      e.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth' });
-    }
-  });
-});
-</script>
 </body>
 </html>
